@@ -295,27 +295,6 @@ Create a `.env` file in `frontend-dashboard/`:
 VITE_API_URL=http://localhost:3000
 ```
 
-### Project Structure
-
-```
-frontend-dashboard/src/
- ├─ components/      # Reusable components
- │  ├─ Login.tsx
- │  ├─ MachinesList.tsx
- │  ├─ RealtimeDashboard.tsx
- │  ├─ HistoricalChart.tsx
- │  └─ Layout.tsx
- ├─ pages/          # Page components
- │  └─ Dashboard.tsx
- ├─ services/        # API services
- │  └─ api.ts
- ├─ contexts/       # React contexts
- │  └─ AuthContext.tsx
- ├─ types/          # TypeScript types
- │  └─ index.ts
- └─ App.tsx         # Main app component
-```
-
 ## Features Summary
 
 **✅ All Required Features Implemented:**
@@ -328,7 +307,3 @@ frontend-dashboard/src/
 - ✅ Histórico (métricas com filtros de data)
 - ✅ Gráficos (tempo real e histórico)
 - ✅ Métricas de performance (latência, msgs/s, uptime)
-
-## License
-
-This project is an educational example.
