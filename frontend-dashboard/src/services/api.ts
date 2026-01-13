@@ -54,5 +54,27 @@ export const metricsService = {
   },
 };
 
+export const alertsService = {
+  getAll: async (machineId?: string, resolved?: boolean) => {
+    const params = new URLSearchParams();
+    if (machineId) params.append('machineId', machineId);
+    if (resolved !== undefined) params.append('resolved', resolved.toString());
+    
+    const response = await api.get(`/alerts?${params.toString()}`);
+    return response.data;
+  },
+  resolve: async (id: number) => {
+    const response = await api.post(`/alerts/${id}/resolve`);
+    return response.data;
+  },
+};
+
+export const performanceService = {
+  getMetrics: async () => {
+    const response = await api.get('/performance');
+    return response.data;
+  },
+};
+
 export default api;
 

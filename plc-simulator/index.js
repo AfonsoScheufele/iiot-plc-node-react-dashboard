@@ -1,14 +1,14 @@
 const mqtt = require('mqtt');
 
 const MQTT_BROKER = process.env.MQTT_BROKER || 'mqtt://localhost:1883';
-const TOPIC = 'factory/machines/M-01';
+const MACHINES = (process.env.MACHINES || 'M-01,M-02').split(',');
 const INTERVAL_MS = 1000;
 
 const client = mqtt.connect(MQTT_BROKER);
 
 client.on('connect', () => {
   console.log(`✅ Conectado ao broker MQTT: ${MQTT_BROKER}`);
-  console.log(`📡 Publicando em: ${TOPIC}`);
+  console.log(`📡 Publicando para ${MACHINES.length} máquina(s): ${MACHINES.join(', ')}`);
   console.log(`⏱️  Intervalo: ${INTERVAL_MS}ms\n`);
 
   startPublishing();
@@ -19,14 +19,12 @@ client.on('error', (error) => {
   process.exit(1);
 });
 
-function generatePLCData() {
-  const machineId = 'M-01';
-  
-  const baseTemp = 70;
+function generatePLCData(machineId) {
+  const baseTemp = 70 + (MACHINES.indexOf(machineId) * 5);
   const tempVariation = (Math.random() - 0.5) * 10;
   const temperature = parseFloat((baseTemp + tempVariation).toFixed(1));
   
-  const basePressure = 4.2;
+  const basePressure = 4.2 + (MACHINES.indexOf(machineId) * 0.3);
   const pressureVariation = (Math.random() - 0.5) * 1.5;
   const pressure = parseFloat((basePressure + pressureVariation).toFixed(1));
   
@@ -50,17 +48,23 @@ function generatePLCData() {
 }
 
 function startPublishing() {
+  let machineIndex = 0;
+  
   setInterval(() => {
-    const data = generatePLCData();
+    const machineId = MACHINES[machineIndex];
+    const topic = `factory/machines/${machineId}`;
+    const data = generatePLCData(machineId);
     const message = JSON.stringify(data);
     
-    client.publish(TOPIC, message, (error) => {
+    client.publish(topic, message, (error) => {
       if (error) {
         console.error('❌ Erro ao publicar:', error);
       } else {
         console.log(`📤 ${data.timestamp} | ${data.machineId} | Temp: ${data.temperature}°C | Pressão: ${data.pressure}bar | Status: ${data.status}`);
       }
     });
+    
+    machineIndex = (machineIndex + 1) % MACHINES.length;
   }, INTERVAL_MS);
 }
 

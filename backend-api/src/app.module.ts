@@ -5,6 +5,8 @@ import { MqttModule } from './mqtt/mqtt.module';
 import { MachinesModule } from './machines/machines.module';
 import { MetricsModule } from './metrics/metrics.module';
 import { AuthModule } from './auth/auth.module';
+import { AlertsModule } from './alerts/alerts.module';
+import { PerformanceModule } from './performance/performance.module';
 
 @Module({
   imports: [
@@ -25,6 +27,8 @@ import { AuthModule } from './auth/auth.module';
     MachinesModule,
     MetricsModule,
     AuthModule,
+    AlertsModule,
+    PerformanceModule,
   ],
 })
 export class AppModule {}

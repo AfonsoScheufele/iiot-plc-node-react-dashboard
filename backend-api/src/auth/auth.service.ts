@@ -11,6 +11,18 @@ export class AuthService {
       password: '$2b$10$Me.euhsivr0AEYX9mmcufe3/r8sRqHGFaEo3uGjYJsqmQ5cCydu7W',
       role: 'admin',
     },
+    {
+      id: 2,
+      username: 'operator',
+      password: '$2b$10$ZmxieYgv9V1QqSWV4bSYX.zfP1cgCQ3jMrbYC0lFTpnkXb12y.6gu',
+      role: 'operator',
+    },
+    {
+      id: 3,
+      username: 'viewer',
+      password: '$2b$10$cxjsK7A.HcPglLawB5lPpuUps0uKCVQQ6eWXTWRhqH41v.EK9hrUm',
+      role: 'viewer',
+    },
   ];
 
   constructor(private jwtService: JwtService) {}

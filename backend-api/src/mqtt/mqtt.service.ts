@@ -4,6 +4,8 @@ import { Repository } from 'typeorm';
 import { connect, MqttClient } from 'mqtt';
 import { Machine } from '../machines/machine.entity';
 import { Metric } from '../metrics/metric.entity';
+import { AlertsService } from '../alerts/alerts.service';
+import { PerformanceService } from '../performance/performance.service';
 
 @Injectable()
 export class MqttService implements OnModuleInit {
@@ -15,6 +17,8 @@ export class MqttService implements OnModuleInit {
     private machineRepository: Repository<Machine>,
     @InjectRepository(Metric)
     private metricRepository: Repository<Metric>,
+    private alertsService: AlertsService,
+    private performanceService: PerformanceService,
   ) {}
 
   async onModuleInit() {
@@ -85,6 +89,9 @@ export class MqttService implements OnModuleInit {
 
     await this.metricRepository.save(metric);
     this.logger.log(`📊 Métrica salva: ${machineId} - Temp: ${temperature}°C, Pressão: ${pressure}bar`);
+
+    await this.alertsService.checkThresholds(machineId, parseFloat(temperature), parseFloat(pressure), status);
+    this.performanceService.recordMessage();
   }
 
   onModuleDestroy() {

@@ -38,23 +38,51 @@ git clone <repository-url>
 cd iiot-plc-node-react-dashboard
 ```
 
-2. **Start infrastructure (Docker):**
+2. **Install all dependencies:**
+```bash
+npm run install:all
+```
+
+3. **Run everything with one command:**
+```bash
+npm run dev
+```
+
+This will start:
+- Docker containers (PostgreSQL + Mosquitto)
+- Backend API (http://localhost:3000)
+- Frontend Dashboard (http://localhost:5173)
+- PLC Simulator (publishing MQTT messages)
+
+**To stop everything:**
+```bash
+npm run stop
+```
+
+### Manual Setup (Alternative)
+
+If you prefer to run services separately:
+
+1. **Start infrastructure:**
 ```bash
 docker-compose up -d postgres mosquitto
 ```
 
-3. **Install backend dependencies:**
+2. **Run backend:**
 ```bash
 cd backend-api
 npm install
-```
-
-4. **Run the backend:**
-```bash
 npm run start:dev
 ```
 
-5. **Run the PLC simulator (in another terminal):**
+3. **Run frontend (in another terminal):**
+```bash
+cd frontend-dashboard
+npm install
+npm run dev
+```
+
+4. **Run simulator (in another terminal):**
 ```bash
 cd plc-simulator
 npm install
@@ -97,12 +125,20 @@ iiot-plc-node-react-dashboard/
 
 ✅ MQTT message consumption  
 ✅ PostgreSQL persistence  
-✅ REST API (`GET /machines`, `GET /metrics`)  
-✅ JWT authentication  
+✅ REST API (`GET /machines`, `GET /metrics`, `GET /alerts`, `GET /performance`)  
+✅ JWT authentication with RBAC (Role-Based Access Control)  
+✅ Alert system with threshold monitoring  
+✅ Performance metrics (latency, msgs/s, uptime)  
 ✅ Swagger at `/api`  
 
 ### How to Run
 
+**Quick Start (from root):**
+```bash
+npm run dev
+```
+
+**Or manually:**
 ```bash
 # Start PostgreSQL and Mosquitto
 docker-compose up -d postgres mosquitto
@@ -117,14 +153,27 @@ npm run start:dev
 
 ### Default Credentials
 
-- **Username:** `admin`
-- **Password:** `admin123`
+- **Admin:** `admin` / `admin123` (full access)
+- **Operator:** `operator` / `operator123` (can resolve alerts)
+- **Viewer:** `viewer` / `viewer123` (read-only)
 
 ### Endpoints
 
+**Authentication:**
 - `POST /auth/login` - Get JWT token
-- `GET /machines` - List machines (requires authentication)
-- `GET /metrics?machineId=&from=&to=` - Get metrics (requires authentication)
+
+**Machines:**
+- `GET /machines` - List machines (requires: admin, operator, viewer)
+
+**Metrics:**
+- `GET /metrics?machineId=&from=&to=` - Get metrics (requires: admin, operator, viewer)
+
+**Alerts:**
+- `GET /alerts?machineId=&resolved=` - List alerts (requires: admin, operator, viewer)
+- `POST /alerts/:id/resolve` - Resolve alert (requires: admin, operator)
+
+**Performance:**
+- `GET /performance` - Get system metrics (requires: admin, operator)
 
 ### Documentation
 
@@ -132,7 +181,16 @@ npm run start:dev
 
 ## PLC Simulator
 
-The simulator publishes data every 1 second to topic `factory/machines/M-01`.
+The simulator publishes data every 1 second for multiple machines.
+
+**Default machines:** `M-01`, `M-02`
+
+**To add more machines:**
+```bash
+MACHINES=M-01,M-02,M-03 npm start
+```
+
+**Or edit the code:** Set `MACHINES` environment variable or modify `index.js`
 
 **Data format:**
 ```json
@@ -204,11 +262,19 @@ docker-compose down
 ✅ Machines list with real-time status  
 ✅ Real-time dashboard with live charts (temperature & pressure)  
 ✅ Historical data charts with time range selection (1h, 6h, 24h)  
+✅ Alerts list with threshold monitoring  
+✅ Performance metrics dashboard (uptime, msgs/s, latency)  
 ✅ Auto-refresh every 2-5 seconds  
 ✅ Responsive design with TailwindCSS  
 
 ### How to Run
 
+**Quick Start (from root):**
+```bash
+npm run dev
+```
+
+**Or manually:**
 ```bash
 cd frontend-dashboard
 npm install
@@ -250,12 +316,25 @@ frontend-dashboard/src/
  └─ App.tsx         # Main app component
 ```
 
-## Next Steps
+## Features Summary
 
-- [ ] Add WebSocket for real-time updates (optional)
-- [ ] Implement alert system
+**✅ All Required Features Implemented:**
+- ✅ PLC Simulator (MQTT publisher)
+- ✅ API REST (NestJS + TypeScript)
+- ✅ Dashboard em tempo real (React)
+- ✅ Auth (JWT)
+- ✅ RBAC (Role-Based Access Control)
+- ✅ Alertas (threshold monitoring)
+- ✅ Histórico (métricas com filtros de data)
+- ✅ Gráficos (tempo real e histórico)
+- ✅ Métricas de performance (latência, msgs/s, uptime)
+
+## Next Steps (Optional)
+
+- [ ] Add WebSocket for real-time updates (currently using polling)
 - [ ] Add Redis cache
-- [ ] Implement RBAC (Role-Based Access Control)
+- [ ] Email/SMS notifications for alerts
+- [ ] Machine configuration management
 
 ## License
 

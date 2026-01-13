@@ -1,0 +1,21 @@
+{
+  "name": "iiot-plc-node-react-dashboard",
+  "version": "1.0.0",
+  "description": "IIoT project: PLC simulation → Node.js API → React dashboard",
+  "scripts": {
+    "dev": "npm run dev:setup && npm run dev:all",
+    "dev:setup": "docker-compose up -d postgres mosquitto",
+    "dev:all": "concurrently -n docker,backend,frontend,simulator -c blue,green,yellow,red \"npm run dev:wait-docker\" \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:simulator\"",
+    "dev:wait-docker": "sleep 8 && echo '✅ Docker containers ready'",
+    "dev:backend": "cd backend-api && npm run start:dev",
+    "dev:frontend": "cd frontend-dashboard && npm run dev",
+    "dev:simulator": "cd plc-simulator && npm start",
+    "install:all": "npm install && cd backend-api && npm install && cd ../frontend-dashboard && npm install && cd ../plc-simulator && npm install",
+    "build": "cd backend-api && npm run build && cd ../frontend-dashboard && npm run build",
+    "stop": "docker-compose down"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
+

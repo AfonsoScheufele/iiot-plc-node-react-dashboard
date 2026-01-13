@@ -21,3 +21,29 @@ export interface LoginResponse {
   access_token: string;
 }
 
+export interface Alert {
+  id: number;
+  machineId: string;
+  type: string;
+  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  message: string;
+  temperature?: number;
+  pressure?: number;
+  resolved: boolean;
+  createdAt: string;
+  resolvedAt?: string;
+}
+
+export interface PerformanceMetrics {
+  uptime: {
+    seconds: number;
+    formatted: string;
+  };
+  messagesPerSecond: number;
+  averageLatency: {
+    milliseconds: number;
+    formatted: string;
+  };
+  totalMessages: number;
+  timestamp: string;
+}

@@ -109,7 +109,12 @@ export const RealtimeDashboard = ({ machineId }: { machineId?: string }) => {
 
   return (
     <div className="bg-gray-800 rounded-lg p-6">
-      <h2 className="text-2xl font-bold text-white mb-4">Real-time Dashboard</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold text-white">Real-time Dashboard</h2>
+        {machineId && (
+          <span className="text-sm text-gray-400">Machine: {machineId}</span>
+        )}
+      </div>
       
       {latestMetric && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">

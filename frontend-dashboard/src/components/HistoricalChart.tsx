@@ -135,7 +135,12 @@ export const HistoricalChart = ({ machineId }: { machineId?: string }) => {
   return (
     <div className="bg-gray-800 rounded-lg p-6">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold text-white">Historical Data</h2>
+        <div className="flex items-center gap-4">
+          <h2 className="text-2xl font-bold text-white">Historical Data</h2>
+          {machineId && (
+            <span className="text-sm text-gray-400">Machine: {machineId}</span>
+          )}
+        </div>
         <select
           value={timeRange}
           onChange={(e) => setTimeRange(e.target.value)}
