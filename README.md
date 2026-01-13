@@ -85,6 +85,14 @@ iiot-plc-node-react-dashboard/
 
 ## Backend API
 
+### Tech Stack
+
+- **Framework**: NestJS + TypeScript
+- **Database**: PostgreSQL + TypeORM
+- **MQTT**: Consumo de mensagens do broker
+- **Auth**: JWT
+- **Docs**: Swagger
+
 ### Implemented Features
 
 ✅ MQTT message consumption  
@@ -99,8 +107,11 @@ iiot-plc-node-react-dashboard/
 # Start PostgreSQL and Mosquitto
 docker-compose up -d postgres mosquitto
 
-# Run backend (development)
+# Install dependencies
 cd backend-api
+npm install
+
+# Run backend (development)
 npm run start:dev
 ```
 
@@ -118,7 +129,6 @@ npm run start:dev
 ### Documentation
 
 - **Swagger UI:** `http://localhost:3000/api`
-- **Backend README:** [backend-api/README.md](./backend-api/README.md)
 
 ## PLC Simulator
 
@@ -179,12 +189,21 @@ docker-compose down
 
 ## Frontend Dashboard
 
+### Tech Stack
+
+- **Framework**: React 19 + TypeScript
+- **Build Tool**: Vite
+- **Styling**: TailwindCSS
+- **Charts**: Chart.js + react-chartjs-2
+- **Routing**: React Router
+- **HTTP Client**: Axios
+
 ### Features Implemented
 
 ✅ Login page with JWT authentication  
 ✅ Machines list with real-time status  
-✅ Real-time dashboard with live charts  
-✅ Historical data charts with time range selection  
+✅ Real-time dashboard with live charts (temperature & pressure)  
+✅ Historical data charts with time range selection (1h, 6h, 24h)  
 ✅ Auto-refresh every 2-5 seconds  
 ✅ Responsive design with TailwindCSS  
 
@@ -201,6 +220,35 @@ The dashboard will be available at `http://localhost:5173`
 **Default credentials:**
 - Username: `admin`
 - Password: `admin123`
+
+### Configuration
+
+Create a `.env` file in `frontend-dashboard/`:
+
+```env
+VITE_API_URL=http://localhost:3000
+```
+
+### Project Structure
+
+```
+frontend-dashboard/src/
+ ├─ components/      # Reusable components
+ │  ├─ Login.tsx
+ │  ├─ MachinesList.tsx
+ │  ├─ RealtimeDashboard.tsx
+ │  ├─ HistoricalChart.tsx
+ │  └─ Layout.tsx
+ ├─ pages/          # Page components
+ │  └─ Dashboard.tsx
+ ├─ services/        # API services
+ │  └─ api.ts
+ ├─ contexts/       # React contexts
+ │  └─ AuthContext.tsx
+ ├─ types/          # TypeScript types
+ │  └─ index.ts
+ └─ App.tsx         # Main app component
+```
 
 ## Next Steps
 
