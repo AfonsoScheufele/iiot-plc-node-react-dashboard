@@ -329,13 +329,6 @@ frontend-dashboard/src/
 - ✅ Gráficos (tempo real e histórico)
 - ✅ Métricas de performance (latência, msgs/s, uptime)
 
-## Next Steps (Optional)
-
-- [ ] Add WebSocket for real-time updates (currently using polling)
-- [ ] Add Redis cache
-- [ ] Email/SMS notifications for alerts
-- [ ] Machine configuration management
-
 ## License
 
 This project is an educational example.
