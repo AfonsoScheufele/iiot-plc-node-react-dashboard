@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: mosquitto
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    networks:
+      - iiot-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres-iiot
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: iiot_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - iiot-network
+
+  backend-api:
+    build: ./backend-api
+    container_name: backend-api
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: iiot_db
+      MQTT_BROKER: mqtt://mosquitto:1883
+      MQTT_TOPIC: factory/machines/+
+      JWT_SECRET: your-secret-key-change-in-production
+      NODE_ENV: production
+    depends_on:
+      - postgres
+      - mosquitto
+    networks:
+      - iiot-network
+
+volumes:
+  postgres_data:
+
+networks:
+  iiot-network:
+    driver: bridge
+
