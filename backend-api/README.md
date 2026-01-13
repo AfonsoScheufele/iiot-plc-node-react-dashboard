@@ -72,3 +72,4 @@ docker-compose up -d backend-api
 Acesse `http://localhost:3000/api` para ver a documentação interativa.
 
 
+

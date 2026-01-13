@@ -20,3 +20,4 @@ echo "Para ver logs: docker logs -f mosquitto"
 echo "Para parar: docker stop mosquitto"
 
 
+
