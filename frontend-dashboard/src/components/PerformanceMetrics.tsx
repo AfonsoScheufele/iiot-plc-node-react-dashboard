@@ -19,6 +19,7 @@ export const PerformanceMetrics = () => {
     };
 
     fetchMetrics();
+    // Performance metrics ainda usa polling (não há evento WebSocket específico)
     const interval = setInterval(fetchMetrics, 5000);
 
     return () => clearInterval(interval);
@@ -59,4 +60,6 @@ export const PerformanceMetrics = () => {
     </div>
   );
 };
+
+
 

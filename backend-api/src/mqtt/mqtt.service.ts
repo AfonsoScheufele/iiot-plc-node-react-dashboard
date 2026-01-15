@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
+import { Injectable, OnModuleInit, Logger, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { connect, MqttClient } from 'mqtt';
@@ -6,6 +6,7 @@ import { Machine } from '../machines/machine.entity';
 import { Metric } from '../metrics/metric.entity';
 import { AlertsService } from '../alerts/alerts.service';
 import { PerformanceService } from '../performance/performance.service';
+import { RealtimeGateway } from '../websocket/websocket.gateway';
 
 @Injectable()
 export class MqttService implements OnModuleInit {
@@ -19,6 +20,8 @@ export class MqttService implements OnModuleInit {
     private metricRepository: Repository<Metric>,
     private alertsService: AlertsService,
     private performanceService: PerformanceService,
+    @Inject(forwardRef(() => RealtimeGateway))
+    private webSocketGateway: RealtimeGateway,
   ) {}
 
   async onModuleInit() {
@@ -90,8 +93,56 @@ export class MqttService implements OnModuleInit {
     await this.metricRepository.save(metric);
     this.logger.log(`📊 Métrica salva: ${machineId} - Temp: ${temperature}°C, Pressão: ${pressure}bar`);
 
-    await this.alertsService.checkThresholds(machineId, parseFloat(temperature), parseFloat(pressure), status);
+    this.webSocketGateway.emitMetricUpdate(machineId, {
+      machineId,
+      temperature: parseFloat(temperature),
+      pressure: parseFloat(pressure),
+      status,
+      timestamp: new Date(timestamp),
+        });
+
+        this.webSocketGateway.emitMachineStatusUpdate(machineId, {
+      id: machineId,
+      status,
+      updatedAt: new Date(),
+    });
+
+    const alerts = await this.alertsService.checkThresholds(machineId, parseFloat(temperature), parseFloat(pressure), status);
+    if (alerts && alerts.length > 0) {
+      alerts.forEach(alert => {
+        this.webSocketGateway.emitAlert(alert);
+      });
+    }
+    
     this.performanceService.recordMessage();
+  }
+
+  /**
+   * Publica dados de métricas via MQTT (usado por ModbusService)
+   */
+  async publishMetric(data: {
+    machineId: string;
+    temperature: number;
+    pressure: number;
+    status: string;
+    timestamp: string;
+    source?: string;
+  }) {
+    if (!this.client || !this.client.connected) {
+      this.logger.warn('Cliente MQTT não conectado, ignorando publicação');
+      return;
+    }
+
+    const topic = `factory/machines/${data.machineId}`;
+    const message = JSON.stringify(data);
+    
+    this.client.publish(topic, message, (error) => {
+      if (error) {
+        this.logger.error(`❌ Erro ao publicar no tópico ${topic}:`, error);
+      } else {
+        this.logger.debug(`📤 Publicado no tópico ${topic}: ${message}`);
+      }
+    });
   }
 
   onModuleDestroy() {

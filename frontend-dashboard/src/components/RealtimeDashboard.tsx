@@ -12,6 +12,7 @@ import {
 } from 'chart.js';
 import { metricsService } from '../services/api';
 import { Metric } from '../types';
+import { useWebSocket, useMachineSubscription } from '../hooks/useWebSocket';
 
 ChartJS.register(
   CategoryScale,
@@ -27,27 +28,45 @@ export const RealtimeDashboard = ({ machineId }: { machineId?: string }) => {
   const [metrics, setMetrics] = useState<Metric[]>([]);
   const [loading, setLoading] = useState(true);
 
+  useMachineSubscription(machineId);
+
   useEffect(() => {
-    const fetchMetrics = async () => {
+    const fetchInitialMetrics = async () => {
       try {
         const data = await metricsService.getMetrics(machineId);
-        setMetrics(data.slice(0, 50).reverse());
+        const sorted = data.slice(-50).sort((a, b) => 
+          new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+        );
+        setMetrics(sorted);
       } catch (error) {
-        console.error('Error fetching metrics:', error);
+        console.error('Error fetching initial metrics:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchMetrics();
-    const interval = setInterval(fetchMetrics, 2000);
-
-    return () => clearInterval(interval);
+    fetchInitialMetrics();
   }, [machineId]);
 
-  if (loading) {
-    return <div className="text-white">Loading metrics...</div>;
-  }
+  useWebSocket('metric:update', (data: Metric) => {
+    if (!machineId || data.machineId === machineId) {
+      setMetrics((prev) => {
+        const exists = prev.some(m => 
+          m.timestamp === data.timestamp && m.machineId === data.machineId
+        );
+        if (exists) {
+          return prev;
+        }
+        
+        const updated = [...prev, data].slice(-50);
+        const sorted = updated.sort((a, b) => 
+          new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+        );
+        
+        return sorted;
+      });
+    }
+  }, [machineId]);
 
   const temperatureData = {
     labels: metrics.map((m) => new Date(m.timestamp).toLocaleTimeString()),
@@ -58,6 +77,8 @@ export const RealtimeDashboard = ({ machineId }: { machineId?: string }) => {
         borderColor: 'rgb(239, 68, 68)',
         backgroundColor: 'rgba(239, 68, 68, 0.1)',
         tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 4,
       },
     ],
   };
@@ -71,6 +92,8 @@ export const RealtimeDashboard = ({ machineId }: { machineId?: string }) => {
         borderColor: 'rgb(59, 130, 246)',
         backgroundColor: 'rgba(59, 130, 246, 0.1)',
         tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 4,
       },
     ],
   };
@@ -78,6 +101,9 @@ export const RealtimeDashboard = ({ machineId }: { machineId?: string }) => {
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
+    animation: {
+      duration: 0, // Sem animação para atualizações instantâneas
+    },
     plugins: {
       legend: {
         labels: {
@@ -89,6 +115,8 @@ export const RealtimeDashboard = ({ machineId }: { machineId?: string }) => {
       x: {
         ticks: {
           color: '#9ca3af',
+          maxRotation: 0,
+          autoSkip: true,
         },
         grid: {
           color: '#374151',
@@ -105,7 +133,11 @@ export const RealtimeDashboard = ({ machineId }: { machineId?: string }) => {
     },
   };
 
-  const latestMetric = metrics[0];
+  const latestMetric = metrics[metrics.length - 1];
+
+  if (loading) {
+    return <div className="text-white">Loading metrics...</div>;
+  }
 
   return (
     <div className="bg-gray-800 rounded-lg p-6">
@@ -139,10 +171,20 @@ export const RealtimeDashboard = ({ machineId }: { machineId?: string }) => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="bg-gray-700 rounded-lg p-4" style={{ height: '300px' }}>
-          <Line data={temperatureData} options={chartOptions} />
+          <Line 
+            key={`temperature-${metrics.length}`}
+            data={temperatureData} 
+            options={chartOptions}
+            redraw
+          />
         </div>
         <div className="bg-gray-700 rounded-lg p-4" style={{ height: '300px' }}>
-          <Line data={pressureData} options={chartOptions} />
+          <Line 
+            key={`pressure-${metrics.length}`}
+            data={pressureData} 
+            options={chartOptions}
+            redraw
+          />
         </div>
       </div>
     </div>

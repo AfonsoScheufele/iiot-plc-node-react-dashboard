@@ -76,5 +76,55 @@ export const performanceService = {
   },
 };
 
+export const oeeService = {
+  calculate: async (machineId: string, from?: string, to?: string) => {
+    const params = new URLSearchParams();
+    params.append('machineId', machineId);
+    if (from) params.append('from', from);
+    if (to) params.append('to', to);
+    
+    const response = await api.get(`/oee/calculate?${params.toString()}`);
+    return response.data;
+  },
+  getProductionRuns: async (machineId?: string, from?: string, to?: string) => {
+    const params = new URLSearchParams();
+    if (machineId) params.append('machineId', machineId);
+    if (from) params.append('from', from);
+    if (to) params.append('to', to);
+    
+    const response = await api.get(`/oee/production-runs?${params.toString()}`);
+    return response.data;
+  },
+  createProductionRun: async (data: any) => {
+    const response = await api.post('/oee/production-runs', data);
+    return response.data;
+  },
+  getDowntimeEvents: async (machineId?: string, from?: string, to?: string) => {
+    const params = new URLSearchParams();
+    if (machineId) params.append('machineId', machineId);
+    if (from) params.append('from', from);
+    if (to) params.append('to', to);
+    
+    const response = await api.get(`/oee/downtime-events?${params.toString()}`);
+    return response.data;
+  },
+  createDowntimeEvent: async (data: any) => {
+    const response = await api.post('/oee/downtime-events', data);
+    return response.data;
+  },
+  resolveDowntimeEvent: async (id: number) => {
+    const response = await api.put(`/oee/downtime-events/${id}/resolve`);
+    return response.data;
+  },
+  recordQualityDefect: async (data: any) => {
+    const response = await api.post('/oee/quality-defects', data);
+    return response.data;
+  },
+  generateSampleData: async (machineId: string) => {
+    const response = await api.post(`/oee/generate-sample-data?machineId=${machineId}`);
+    return response.data;
+  },
+};
+
 export default api;
 

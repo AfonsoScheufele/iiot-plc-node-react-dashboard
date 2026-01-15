@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { machinesService } from '../services/api';
 import { Machine } from '../types/index';
+import { useWebSocket } from '../hooks/useWebSocket';
 
 export const MachinesList = () => {
   const [machines, setMachines] = useState<Machine[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Carregar dados iniciais
   useEffect(() => {
     const fetchMachines = async () => {
       try {
@@ -19,9 +21,19 @@ export const MachinesList = () => {
     };
 
     fetchMachines();
-    const interval = setInterval(fetchMachines, 5000);
+  }, []);
 
-    return () => clearInterval(interval);
+  // Escutar atualizações via WebSocket
+  useWebSocket('machine:status', (data: Machine) => {
+    setMachines((prev) => {
+      const index = prev.findIndex((m) => m.id === data.id);
+      if (index >= 0) {
+        const updated = [...prev];
+        updated[index] = { ...updated[index], ...data };
+        return updated;
+      }
+      return prev;
+    });
   }, []);
 
   const getStatusColor = (status: string) => {

@@ -7,6 +7,9 @@ import { MetricsModule } from './metrics/metrics.module';
 import { AuthModule } from './auth/auth.module';
 import { AlertsModule } from './alerts/alerts.module';
 import { PerformanceModule } from './performance/performance.module';
+import { WebSocketModule } from './websocket/websocket.module';
+import { ModbusModule } from './modbus/modbus.module';
+import { OeeModule } from './oee/oee.module';
 
 @Module({
   imports: [
@@ -23,12 +26,15 @@ import { PerformanceModule } from './performance/performance.module';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: process.env.NODE_ENV !== 'production',
     }),
+    WebSocketModule,
     MqttModule,
     MachinesModule,
     MetricsModule,
     AuthModule,
     AlertsModule,
     PerformanceModule,
+    ModbusModule,
+    OeeModule,
   ],
 })
 export class AppModule {}

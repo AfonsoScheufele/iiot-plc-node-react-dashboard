@@ -47,3 +47,60 @@ export interface PerformanceMetrics {
   totalMessages: number;
   timestamp: string;
 }
+
+export interface OEE {
+  availability: number;
+  performance: number;
+  quality: number;
+  oee: number;
+  plannedTime: number;
+  operatingTime: number;
+  actualProduction: number;
+  goodParts: number;
+  totalParts: number;
+}
+
+export interface ProductionRun {
+  id: number;
+  machineId: string;
+  startTime: string;
+  endTime?: string;
+  plannedProduction: number;
+  actualProduction: number;
+  goodParts: number;
+  defectiveParts: number;
+  plannedTime: number;
+  operatingTime: number;
+  downtime: number;
+  availability?: number;
+  performance?: number;
+  quality?: number;
+  oee?: number;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DowntimeEvent {
+  id: number;
+  machineId: string;
+  startTime: string;
+  endTime?: string;
+  duration?: number;
+  category: string;
+  reason?: string;
+  description?: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface QualityDefect {
+  id: number;
+  machineId: string;
+  timestamp: string;
+  defectType: string;
+  description?: string;
+  quantity: number;
+  createdAt: string;
+}

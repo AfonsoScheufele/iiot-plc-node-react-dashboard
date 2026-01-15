@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { alertsService } from '../services/api';
 import { Alert } from '../types';
+import { useWebSocket } from '../hooks/useWebSocket';
 
 export const AlertsList = ({ machineId }: { machineId?: string }) => {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
   const [showResolved, setShowResolved] = useState(false);
 
+  // Carregar dados iniciais
   useEffect(() => {
     const fetchAlerts = async () => {
       try {
@@ -20,10 +22,14 @@ export const AlertsList = ({ machineId }: { machineId?: string }) => {
     };
 
     fetchAlerts();
-    const interval = setInterval(fetchAlerts, 5000);
-
-    return () => clearInterval(interval);
   }, [showResolved, machineId]);
+
+  // Escutar novos alertas via WebSocket
+  useWebSocket('alert:new', (newAlert: Alert) => {
+    if (!machineId || newAlert.machineId === machineId) {
+      setAlerts((prev) => [newAlert, ...prev]);
+    }
+  }, [machineId]);
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {

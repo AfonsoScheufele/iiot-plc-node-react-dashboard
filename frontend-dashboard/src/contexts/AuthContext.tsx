@@ -21,9 +21,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = async (username: string, password: string) => {
-    const response = await authService.login(username, password);
-    localStorage.setItem('token', response.access_token);
-    setIsAuthenticated(true);
+    try {
+      const response = await authService.login(username, password);
+      if (response && response.access_token) {
+        localStorage.setItem('token', response.access_token);
+        setIsAuthenticated(true);
+      } else {
+        throw new Error('Resposta inválida do servidor');
+      }
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || error.message || 'Erro ao fazer login';
+      throw new Error(errorMessage);
+    }
   };
 
   const logout = () => {
@@ -45,6 +54,8 @@ export const useAuth = () => {
   }
   return context;
 };
+
+
 
 
 

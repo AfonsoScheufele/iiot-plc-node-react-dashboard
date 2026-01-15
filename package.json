@@ -4,7 +4,7 @@
   "description": "IIoT project: PLC simulation → Node.js API → React dashboard",
   "scripts": {
     "dev": "npm run dev:setup && npm run dev:all",
-    "dev:setup": "docker-compose up -d postgres mosquitto",
+    "dev:setup": "docker-compose down && docker-compose up -d postgres mosquitto",
     "dev:all": "concurrently -n docker,backend,frontend,simulator -c blue,green,yellow,red \"npm run dev:wait-docker\" \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:simulator\"",
     "dev:wait-docker": "sleep 8 && echo '✅ Docker containers ready'",
     "dev:backend": "cd backend-api && npm run start:dev",

@@ -16,7 +16,9 @@ export const Login = () => {
       await login(username, password);
       navigate('/');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed');
+      const errorMessage = err.message || err.response?.data?.message || 'Login failed. Verifique suas credenciais.';
+      setError(errorMessage);
+      console.error('Login error:', err);
     }
   };
 
